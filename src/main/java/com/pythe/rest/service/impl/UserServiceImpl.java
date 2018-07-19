@@ -1,33 +1,19 @@
 package com.pythe.rest.service.impl;
 
-import java.security.cert.Certificate;
-import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.joda.time.DateTime;
-import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.pythe.common.pojo.PytheResult;
-
+import com.pythe.common.utils.FactoryUtils;
 import com.pythe.common.utils.MD5Util;
 import com.pythe.common.utils.RedisUtil;
-import com.pythe.common.utils.SnowflakeIdWorker;
 import com.pythe.mapper.TblSaltMapper;
 import com.pythe.mapper.TblTeacherAccountMapper;
 import com.pythe.mapper.TblTeacherMapper;
@@ -37,39 +23,42 @@ import com.pythe.pojo.TblSalt;
 import com.pythe.pojo.TblSaltExample;
 import com.pythe.pojo.TblTeacher;
 import com.pythe.pojo.TblTeacherAccount;
-import com.pythe.pojo.TblTeacherAccountExample;
 import com.pythe.pojo.TblTeacherExample;
 import com.pythe.pojo.TblTeacherPerformance;
-
 import com.pythe.pojo.TblVerification;
 import com.pythe.pojo.TblVerificationExample;
 import com.pythe.rest.service.UserService;
 
+@PropertySource(value = { "classpath:resource/db.properties" })
 @Service
 public class UserServiceImpl implements UserService {
-	
+
 	@Autowired
-    private RedisUtil redisUtil;
-	
+	private RedisUtil redisUtil;
+
 	@Autowired
 	private TblVerificationMapper verificationMapper;
-	
+
 	@Autowired
 	private TblTeacherMapper teacherMapper;
-	
+
 	@Autowired
 	private TblTeacherAccountMapper teacherAccountMapper;
-	
+
 	@Autowired
 	private TblTeacherPerformanceMapper teacherPerformanceMapper;
-	
+
 	@Autowired
 	private TblSaltMapper saltMapper;
 
-	//手机密码注册
+	@Value("${jdbc.url}")
+	private String url;
+
+	// 手机密码注册
 	@Override
 	public PytheResult register(String params) {
-		
+
+		// System.out.println(url);
 		// 用户
 		JSONObject userInformation = JSONObject.parseObject(params);
 
@@ -83,16 +72,19 @@ public class UserServiceImpl implements UserService {
 		TblVerificationExample example = new TblVerificationExample();
 		example.createCriteria().andUserPhoneNumberEqualTo(phoneNum)
 				.andGenerateTimeGreaterThanOrEqualTo(new DateTime().minusMinutes(1).toDate());
+		example.setOrderByClause("generate_time DESC");
+
 		List<TblVerification> verificationList = verificationMapper.selectByExample(example);
 		// 验证码对象不存在：是因为之前没有插入或者超时导致的
 		if (verificationList.size() == 0) {
-			return PytheResult.build(400, "验证码错误或过期");
+			System.out.println(new DateTime().minusMinutes(1).toDate());
+			return PytheResult.build(400, "验证码过期");
 		}
 		TblVerification verification_info = verificationList.get(0);
 
 		// 验证码不正确
 		if (!verification_info.getVerificationCode().equals(verificationCode)) {
-			return PytheResult.build(400, "验证码错误或过期");
+			return PytheResult.build(400, "验证码错误");
 		}
 
 		TblTeacherExample teacherExample = new TblTeacherExample();
@@ -106,9 +98,9 @@ public class UserServiceImpl implements UserService {
 			saltExample.createCriteria().andPhoneNumEqualTo(phoneNum);
 			saltMapper.deleteByExample(saltExample);
 			TblSalt salt = new TblSalt();
-			salt.setId(String.valueOf(SnowflakeIdWorker.getSeqID()));
+			salt.setId(FactoryUtils.getUUID());
 			salt.setPhoneNum(phoneNum);
-			salt.setSalt(String.valueOf(SnowflakeIdWorker.getSeqID()));
+			salt.setSalt(FactoryUtils.getUUID());
 			String storedPassword = password.concat(salt.getSalt());
 			storedPassword = MD5Util.string2MD5(storedPassword);
 			saltMapper.insert(salt);
@@ -120,12 +112,14 @@ public class UserServiceImpl implements UserService {
 			teacher.setLevel(-1);
 			teacherMapper.insert(teacher);
 
-			
-			//redis存放session
-			Long token = SnowflakeIdWorker.getSeqID();
-			redisUtil.set(String.valueOf(token), teacher);
-			redisUtil.set("teacher-"+teacher.getTeacherId(), token);
-			
+			// redis存放session
+			String token = FactoryUtils.getUUID();
+			String checkToken = (String) redisUtil.get("teacher-" + teacher.getTeacherId());
+			if (checkToken != null) {
+				token = checkToken;
+			}
+			redisUtil.set(String.valueOf(token), JSONObject.toJSONString(teacher));
+			redisUtil.set("teacher-" + teacher.getPhonenum(), token);
 
 			// 加入老师账户
 			TblTeacherAccount teacherAccount = new TblTeacherAccount();
@@ -153,11 +147,10 @@ public class UserServiceImpl implements UserService {
 			teacher.setPassword(null);
 			result.put("teacher", teacher);
 
-			return PytheResult.build(668,"须完善资料",result);
+			return PytheResult.build(668, "须完善资料", result);
 		} else {
 			return PytheResult.build(600, "该手机号已注册过");
 		}
 	}
-
 
 }
