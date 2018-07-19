@@ -1,0 +1,557 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pythe.mapper.TblTeacherMapper" >
+  <resultMap id="BaseResultMap" type="com.pythe.pojo.TblTeacher" >
+    <id column="teacher_id" property="teacherId" jdbcType="BIGINT" />
+    <result column="username" property="username" jdbcType="VARCHAR" />
+    <result column="userImg" property="userimg" jdbcType="VARCHAR" />
+    <result column="password" property="password" jdbcType="VARCHAR" />
+    <result column="phoneNum" property="phonenum" jdbcType="VARCHAR" />
+    <result column="gradeId" property="gradeid" jdbcType="INTEGER" />
+    <result column="mnp1_openId" property="mnp1Openid" jdbcType="VARCHAR" />
+    <result column="created" property="created" jdbcType="TIMESTAMP" />
+    <result column="updated" property="updated" jdbcType="TIMESTAMP" />
+    <result column="openId" property="openid" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="knowlegeSpace" property="knowlegespace" jdbcType="VARCHAR" />
+    <result column="level" property="level" jdbcType="INTEGER" />
+    <result column="union_id" property="unionId" jdbcType="VARCHAR" />
+    <result column="id_code" property="idCode" jdbcType="VARCHAR" />
+    <result column="id_img" property="idImg" jdbcType="VARCHAR" />
+    <result column="teacher_certificate_img" property="teacherCertificateImg" jdbcType="VARCHAR" />
+    <result column="incumbency_img" property="incumbencyImg" jdbcType="VARCHAR" />
+    <result column="diploma" property="diploma" jdbcType="VARCHAR" />
+    <result column="gender" property="gender" jdbcType="INTEGER" />
+    <result column="organization" property="organization" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.pythe.pojo.TblTeacher" extends="BaseResultMap" >
+    <result column="description" property="description" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    teacher_id, username, userImg, password, phoneNum, gradeId, mnp1_openId, created, 
+    updated, openId, status, knowlegeSpace, level, union_id, id_code, id_img, teacher_certificate_img, 
+    incumbency_img, diploma, gender, organization
+  </sql>
+  <sql id="Blob_Column_List" >
+    description
+  </sql>
+  <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="com.pythe.pojo.TblTeacherExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from tbl_teacher
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.pythe.pojo.TblTeacherExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from tbl_teacher
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from tbl_teacher
+    where teacher_id = #{teacherId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from tbl_teacher
+    where teacher_id = #{teacherId,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.pythe.pojo.TblTeacherExample" >
+    delete from tbl_teacher
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.pythe.pojo.TblTeacher" >
+  	<selectKey keyProperty="teacherId" order="AFTER" resultType="java.lang.Long">
+	     select LAST_INSERT_ID()
+	</selectKey>
+    insert into tbl_teacher (teacher_id, username, userImg, 
+      password, phoneNum, gradeId, 
+      mnp1_openId, created, updated, 
+      openId, status, knowlegeSpace, 
+      level, union_id, id_code, 
+      id_img, teacher_certificate_img, incumbency_img, 
+      diploma, gender, organization, 
+      description)
+    values (#{teacherId,jdbcType=BIGINT}, #{username,jdbcType=VARCHAR}, #{userimg,jdbcType=VARCHAR}, 
+      #{password,jdbcType=VARCHAR}, #{phonenum,jdbcType=VARCHAR}, #{gradeid,jdbcType=INTEGER}, 
+      #{mnp1Openid,jdbcType=VARCHAR}, #{created,jdbcType=TIMESTAMP}, #{updated,jdbcType=TIMESTAMP}, 
+      #{openid,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{knowlegespace,jdbcType=VARCHAR}, 
+      #{level,jdbcType=INTEGER}, #{unionId,jdbcType=VARCHAR}, #{idCode,jdbcType=VARCHAR}, 
+      #{idImg,jdbcType=VARCHAR}, #{teacherCertificateImg,jdbcType=VARCHAR}, #{incumbencyImg,jdbcType=VARCHAR}, 
+      #{diploma,jdbcType=VARCHAR}, #{gender,jdbcType=INTEGER}, #{organization,jdbcType=VARCHAR}, 
+      #{description,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.pythe.pojo.TblTeacher" >
+    insert into tbl_teacher
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="teacherId != null" >
+        teacher_id,
+      </if>
+      <if test="username != null" >
+        username,
+      </if>
+      <if test="userimg != null" >
+        userImg,
+      </if>
+      <if test="password != null" >
+        password,
+      </if>
+      <if test="phonenum != null" >
+        phoneNum,
+      </if>
+      <if test="gradeid != null" >
+        gradeId,
+      </if>
+      <if test="mnp1Openid != null" >
+        mnp1_openId,
+      </if>
+      <if test="created != null" >
+        created,
+      </if>
+      <if test="updated != null" >
+        updated,
+      </if>
+      <if test="openid != null" >
+        openId,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="knowlegespace != null" >
+        knowlegeSpace,
+      </if>
+      <if test="level != null" >
+        level,
+      </if>
+      <if test="unionId != null" >
+        union_id,
+      </if>
+      <if test="idCode != null" >
+        id_code,
+      </if>
+      <if test="idImg != null" >
+        id_img,
+      </if>
+      <if test="teacherCertificateImg != null" >
+        teacher_certificate_img,
+      </if>
+      <if test="incumbencyImg != null" >
+        incumbency_img,
+      </if>
+      <if test="diploma != null" >
+        diploma,
+      </if>
+      <if test="gender != null" >
+        gender,
+      </if>
+      <if test="organization != null" >
+        organization,
+      </if>
+      <if test="description != null" >
+        description,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="teacherId != null" >
+        #{teacherId,jdbcType=BIGINT},
+      </if>
+      <if test="username != null" >
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="userimg != null" >
+        #{userimg,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null" >
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="phonenum != null" >
+        #{phonenum,jdbcType=VARCHAR},
+      </if>
+      <if test="gradeid != null" >
+        #{gradeid,jdbcType=INTEGER},
+      </if>
+      <if test="mnp1Openid != null" >
+        #{mnp1Openid,jdbcType=VARCHAR},
+      </if>
+      <if test="created != null" >
+        #{created,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updated != null" >
+        #{updated,jdbcType=TIMESTAMP},
+      </if>
+      <if test="openid != null" >
+        #{openid,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="knowlegespace != null" >
+        #{knowlegespace,jdbcType=VARCHAR},
+      </if>
+      <if test="level != null" >
+        #{level,jdbcType=INTEGER},
+      </if>
+      <if test="unionId != null" >
+        #{unionId,jdbcType=VARCHAR},
+      </if>
+      <if test="idCode != null" >
+        #{idCode,jdbcType=VARCHAR},
+      </if>
+      <if test="idImg != null" >
+        #{idImg,jdbcType=VARCHAR},
+      </if>
+      <if test="teacherCertificateImg != null" >
+        #{teacherCertificateImg,jdbcType=VARCHAR},
+      </if>
+      <if test="incumbencyImg != null" >
+        #{incumbencyImg,jdbcType=VARCHAR},
+      </if>
+      <if test="diploma != null" >
+        #{diploma,jdbcType=VARCHAR},
+      </if>
+      <if test="gender != null" >
+        #{gender,jdbcType=INTEGER},
+      </if>
+      <if test="organization != null" >
+        #{organization,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null" >
+        #{description,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.pythe.pojo.TblTeacherExample" resultType="java.lang.Integer" >
+    select count(*) from tbl_teacher
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update tbl_teacher
+    <set >
+      <if test="record.teacherId != null" >
+        teacher_id = #{record.teacherId,jdbcType=BIGINT},
+      </if>
+      <if test="record.username != null" >
+        username = #{record.username,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userimg != null" >
+        userImg = #{record.userimg,jdbcType=VARCHAR},
+      </if>
+      <if test="record.password != null" >
+        password = #{record.password,jdbcType=VARCHAR},
+      </if>
+      <if test="record.phonenum != null" >
+        phoneNum = #{record.phonenum,jdbcType=VARCHAR},
+      </if>
+      <if test="record.gradeid != null" >
+        gradeId = #{record.gradeid,jdbcType=INTEGER},
+      </if>
+      <if test="record.mnp1Openid != null" >
+        mnp1_openId = #{record.mnp1Openid,jdbcType=VARCHAR},
+      </if>
+      <if test="record.created != null" >
+        created = #{record.created,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updated != null" >
+        updated = #{record.updated,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.openid != null" >
+        openId = #{record.openid,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.knowlegespace != null" >
+        knowlegeSpace = #{record.knowlegespace,jdbcType=VARCHAR},
+      </if>
+      <if test="record.level != null" >
+        level = #{record.level,jdbcType=INTEGER},
+      </if>
+      <if test="record.unionId != null" >
+        union_id = #{record.unionId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.idCode != null" >
+        id_code = #{record.idCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.idImg != null" >
+        id_img = #{record.idImg,jdbcType=VARCHAR},
+      </if>
+      <if test="record.teacherCertificateImg != null" >
+        teacher_certificate_img = #{record.teacherCertificateImg,jdbcType=VARCHAR},
+      </if>
+      <if test="record.incumbencyImg != null" >
+        incumbency_img = #{record.incumbencyImg,jdbcType=VARCHAR},
+      </if>
+      <if test="record.diploma != null" >
+        diploma = #{record.diploma,jdbcType=VARCHAR},
+      </if>
+      <if test="record.gender != null" >
+        gender = #{record.gender,jdbcType=INTEGER},
+      </if>
+      <if test="record.organization != null" >
+        organization = #{record.organization,jdbcType=VARCHAR},
+      </if>
+      <if test="record.description != null" >
+        description = #{record.description,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map" >
+    update tbl_teacher
+    set teacher_id = #{record.teacherId,jdbcType=BIGINT},
+      username = #{record.username,jdbcType=VARCHAR},
+      userImg = #{record.userimg,jdbcType=VARCHAR},
+      password = #{record.password,jdbcType=VARCHAR},
+      phoneNum = #{record.phonenum,jdbcType=VARCHAR},
+      gradeId = #{record.gradeid,jdbcType=INTEGER},
+      mnp1_openId = #{record.mnp1Openid,jdbcType=VARCHAR},
+      created = #{record.created,jdbcType=TIMESTAMP},
+      updated = #{record.updated,jdbcType=TIMESTAMP},
+      openId = #{record.openid,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=INTEGER},
+      knowlegeSpace = #{record.knowlegespace,jdbcType=VARCHAR},
+      level = #{record.level,jdbcType=INTEGER},
+      union_id = #{record.unionId,jdbcType=VARCHAR},
+      id_code = #{record.idCode,jdbcType=VARCHAR},
+      id_img = #{record.idImg,jdbcType=VARCHAR},
+      teacher_certificate_img = #{record.teacherCertificateImg,jdbcType=VARCHAR},
+      incumbency_img = #{record.incumbencyImg,jdbcType=VARCHAR},
+      diploma = #{record.diploma,jdbcType=VARCHAR},
+      gender = #{record.gender,jdbcType=INTEGER},
+      organization = #{record.organization,jdbcType=VARCHAR},
+      description = #{record.description,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update tbl_teacher
+    set teacher_id = #{record.teacherId,jdbcType=BIGINT},
+      username = #{record.username,jdbcType=VARCHAR},
+      userImg = #{record.userimg,jdbcType=VARCHAR},
+      password = #{record.password,jdbcType=VARCHAR},
+      phoneNum = #{record.phonenum,jdbcType=VARCHAR},
+      gradeId = #{record.gradeid,jdbcType=INTEGER},
+      mnp1_openId = #{record.mnp1Openid,jdbcType=VARCHAR},
+      created = #{record.created,jdbcType=TIMESTAMP},
+      updated = #{record.updated,jdbcType=TIMESTAMP},
+      openId = #{record.openid,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=INTEGER},
+      knowlegeSpace = #{record.knowlegespace,jdbcType=VARCHAR},
+      level = #{record.level,jdbcType=INTEGER},
+      union_id = #{record.unionId,jdbcType=VARCHAR},
+      id_code = #{record.idCode,jdbcType=VARCHAR},
+      id_img = #{record.idImg,jdbcType=VARCHAR},
+      teacher_certificate_img = #{record.teacherCertificateImg,jdbcType=VARCHAR},
+      incumbency_img = #{record.incumbencyImg,jdbcType=VARCHAR},
+      diploma = #{record.diploma,jdbcType=VARCHAR},
+      gender = #{record.gender,jdbcType=INTEGER},
+      organization = #{record.organization,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.pythe.pojo.TblTeacher" >
+    update tbl_teacher
+    <set >
+      <if test="username != null" >
+        username = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="userimg != null" >
+        userImg = #{userimg,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null" >
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="phonenum != null" >
+        phoneNum = #{phonenum,jdbcType=VARCHAR},
+      </if>
+      <if test="gradeid != null" >
+        gradeId = #{gradeid,jdbcType=INTEGER},
+      </if>
+      <if test="mnp1Openid != null" >
+        mnp1_openId = #{mnp1Openid,jdbcType=VARCHAR},
+      </if>
+      <if test="created != null" >
+        created = #{created,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updated != null" >
+        updated = #{updated,jdbcType=TIMESTAMP},
+      </if>
+      <if test="openid != null" >
+        openId = #{openid,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="knowlegespace != null" >
+        knowlegeSpace = #{knowlegespace,jdbcType=VARCHAR},
+      </if>
+      <if test="level != null" >
+        level = #{level,jdbcType=INTEGER},
+      </if>
+      <if test="unionId != null" >
+        union_id = #{unionId,jdbcType=VARCHAR},
+      </if>
+      <if test="idCode != null" >
+        id_code = #{idCode,jdbcType=VARCHAR},
+      </if>
+      <if test="idImg != null" >
+        id_img = #{idImg,jdbcType=VARCHAR},
+      </if>
+      <if test="teacherCertificateImg != null" >
+        teacher_certificate_img = #{teacherCertificateImg,jdbcType=VARCHAR},
+      </if>
+      <if test="incumbencyImg != null" >
+        incumbency_img = #{incumbencyImg,jdbcType=VARCHAR},
+      </if>
+      <if test="diploma != null" >
+        diploma = #{diploma,jdbcType=VARCHAR},
+      </if>
+      <if test="gender != null" >
+        gender = #{gender,jdbcType=INTEGER},
+      </if>
+      <if test="organization != null" >
+        organization = #{organization,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null" >
+        description = #{description,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where teacher_id = #{teacherId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.pythe.pojo.TblTeacher" >
+    update tbl_teacher
+    set username = #{username,jdbcType=VARCHAR},
+      userImg = #{userimg,jdbcType=VARCHAR},
+      password = #{password,jdbcType=VARCHAR},
+      phoneNum = #{phonenum,jdbcType=VARCHAR},
+      gradeId = #{gradeid,jdbcType=INTEGER},
+      mnp1_openId = #{mnp1Openid,jdbcType=VARCHAR},
+      created = #{created,jdbcType=TIMESTAMP},
+      updated = #{updated,jdbcType=TIMESTAMP},
+      openId = #{openid,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      knowlegeSpace = #{knowlegespace,jdbcType=VARCHAR},
+      level = #{level,jdbcType=INTEGER},
+      union_id = #{unionId,jdbcType=VARCHAR},
+      id_code = #{idCode,jdbcType=VARCHAR},
+      id_img = #{idImg,jdbcType=VARCHAR},
+      teacher_certificate_img = #{teacherCertificateImg,jdbcType=VARCHAR},
+      incumbency_img = #{incumbencyImg,jdbcType=VARCHAR},
+      diploma = #{diploma,jdbcType=VARCHAR},
+      gender = #{gender,jdbcType=INTEGER},
+      organization = #{organization,jdbcType=VARCHAR},
+      description = #{description,jdbcType=LONGVARCHAR}
+    where teacher_id = #{teacherId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.pythe.pojo.TblTeacher" >
+    update tbl_teacher
+    set username = #{username,jdbcType=VARCHAR},
+      userImg = #{userimg,jdbcType=VARCHAR},
+      password = #{password,jdbcType=VARCHAR},
+      phoneNum = #{phonenum,jdbcType=VARCHAR},
+      gradeId = #{gradeid,jdbcType=INTEGER},
+      mnp1_openId = #{mnp1Openid,jdbcType=VARCHAR},
+      created = #{created,jdbcType=TIMESTAMP},
+      updated = #{updated,jdbcType=TIMESTAMP},
+      openId = #{openid,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      knowlegeSpace = #{knowlegespace,jdbcType=VARCHAR},
+      level = #{level,jdbcType=INTEGER},
+      union_id = #{unionId,jdbcType=VARCHAR},
+      id_code = #{idCode,jdbcType=VARCHAR},
+      id_img = #{idImg,jdbcType=VARCHAR},
+      teacher_certificate_img = #{teacherCertificateImg,jdbcType=VARCHAR},
+      incumbency_img = #{incumbencyImg,jdbcType=VARCHAR},
+      diploma = #{diploma,jdbcType=VARCHAR},
+      gender = #{gender,jdbcType=INTEGER},
+      organization = #{organization,jdbcType=VARCHAR}
+    where teacher_id = #{teacherId,jdbcType=BIGINT}
+  </update>
+</mapper>

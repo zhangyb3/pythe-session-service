@@ -11,6 +11,8 @@ import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 
 @Configuration
 public class JedisConfig {
+	@Value("${spring.redis.database-index}")
+    private Integer databaseIndex;
     @Value("${spring.redis.host}")
     private  String host;
     @Value("${spring.redis.password}")
@@ -31,8 +33,10 @@ public class JedisConfig {
         factory.setPort(port);
         factory.setTimeout(timeout);
         factory.setPassword(password);
+        factory.setDatabase(databaseIndex);
         return factory;
     }
+    
     
 //    @Bean
 //    public JedisPool redisPoolFactory() {
