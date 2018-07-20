@@ -19,6 +19,8 @@ import com.pythe.mapper.TblTeacherAccountMapper;
 import com.pythe.mapper.TblTeacherMapper;
 import com.pythe.mapper.TblTeacherPerformanceMapper;
 import com.pythe.mapper.TblVerificationMapper;
+import com.pythe.mapper.VTeacherPerformanceMapper;
+import com.pythe.mapper.VTeacherSaltMapper;
 import com.pythe.pojo.TblSalt;
 import com.pythe.pojo.TblSaltExample;
 import com.pythe.pojo.TblTeacher;
@@ -27,6 +29,10 @@ import com.pythe.pojo.TblTeacherExample;
 import com.pythe.pojo.TblTeacherPerformance;
 import com.pythe.pojo.TblVerification;
 import com.pythe.pojo.TblVerificationExample;
+import com.pythe.pojo.VTeacherPerformance;
+import com.pythe.pojo.VTeacherPerformanceExample;
+import com.pythe.pojo.VTeacherSalt;
+import com.pythe.pojo.VTeacherSaltExample;
 import com.pythe.rest.service.UserService;
 
 @PropertySource(value = { "classpath:resource/db.properties" })
@@ -50,6 +56,12 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private TblSaltMapper saltMapper;
+
+	@Autowired
+	private VTeacherSaltMapper vTeacherSaltMapper;
+
+	@Autowired
+	private VTeacherPerformanceMapper vTeacherPerformanceMapper;
 
 	@Value("${jdbc.url}")
 	private String url;
@@ -150,6 +162,59 @@ public class UserServiceImpl implements UserService {
 			return PytheResult.build(668, "须完善资料", result);
 		} else {
 			return PytheResult.build(600, "该手机号已注册过");
+		}
+	}
+
+	@Override
+	public PytheResult login(String params) {
+		JSONObject userInformation = JSONObject.parseObject(params);
+
+		String phoneNum = userInformation.getString("phoneNum").trim();
+
+		VTeacherSaltExample vTeacherSaltExample = new VTeacherSaltExample();
+		vTeacherSaltExample.createCriteria().andPhoneNumEqualTo(phoneNum);
+		List<VTeacherSalt> teacherList = vTeacherSaltMapper.selectByExample(vTeacherSaltExample);
+		// 用户输入帐号和密码错误存在两种情况
+		// 一种用户帐号不存在，一种是密码不对
+
+		if (teacherList.isEmpty()) {
+			return PytheResult.build(400, "用户不存在");
+		}
+
+		// 密码不对情况
+		String password = userInformation.getString("password");
+		VTeacherSalt vTeacherSalt = teacherList.get(0);
+		String storedPassword = password.concat(vTeacherSalt.getSalt());
+		storedPassword = MD5Util.string2MD5(storedPassword);
+
+		if (!vTeacherSalt.getPassword().equals(storedPassword)) {
+			return PytheResult.build(400, "密码错误");
+		} else {
+
+			TblTeacher teacher = teacherMapper.selectByPrimaryKey(vTeacherSalt.getTeacherId());
+
+			// redis存放session
+			String token = FactoryUtils.getUUID();
+			teacher.setPassword(null);
+			redisUtil.set(String.valueOf(token), JSONObject.toJSONString(teacher));
+			redisUtil.set("teacher-" + teacher.getPhonenum(), token);
+
+			JSONObject result = new JSONObject();
+			teacher.setPassword(null);
+			result.put("teacher", teacher);
+			result.put("token", token);
+			VTeacherPerformanceExample teacherPerformanceExample = new VTeacherPerformanceExample();
+			teacherPerformanceExample.createCriteria().andTeacherIdEqualTo(teacher.getTeacherId());
+			VTeacherPerformance teacherPerformance = vTeacherPerformanceMapper
+					.selectByExample(teacherPerformanceExample).get(0);
+
+			if (teacher.getLevel().intValue() < 0 && teacherPerformance.getStatus().intValue() < 0) {
+				return PytheResult.build(668, "须完善信息", result);
+			}
+			if (teacher.getLevel().intValue() == 0 && teacherPerformance.getStatus().intValue() < 0) {
+				return PytheResult.build(669, "已完善信息", result);
+			}
+			return PytheResult.ok(result);
 		}
 	}
 
