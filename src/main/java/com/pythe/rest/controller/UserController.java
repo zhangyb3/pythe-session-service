@@ -4,10 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pythe.common.pojo.PytheResult;
+import com.pythe.common.utils.ExceptionUtil;
 import com.pythe.common.utils.RedisUtil;
 import com.pythe.rest.service.UserService;
 
@@ -27,17 +29,44 @@ public class UserController {
 	@PostMapping("/teacher/register")
 	public PytheResult teacherRegister(@RequestBody String params) {
 
-		PytheResult result = userService.register(params);
-
-		return result;
+		try {
+			return userService.register(params);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return PytheResult.build(500, ExceptionUtil.getStackTrace(e));
+		}
 	}
 
 	@PostMapping("/teacher/login")
 	public PytheResult teacherLogin(@RequestBody String params) {
 
-		PytheResult result = userService.login(params);
+		try {
+			return userService.login(params);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return PytheResult.build(500, ExceptionUtil.getStackTrace(e));
+		}
+	}
 
-		return result;
+	@PostMapping("/teacher/token/login")
+	public PytheResult teacherTokenLogin(@RequestHeader(value = "token") String token, @RequestBody String params) {
+
+		try {
+			return userService.tokenLogin(token, params);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return PytheResult.build(500, ExceptionUtil.getStackTrace(e));
+		}
+	}
+
+	@PostMapping(value = "/teacher/reset/password")
+	public PytheResult resetPassword(@RequestBody String parameters) {
+		try {
+			return userService.resetPassword(parameters);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return PytheResult.build(500, ExceptionUtil.getStackTrace(e));
+		}
 	}
 
 	public static void main(String[] args) {

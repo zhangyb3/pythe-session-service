@@ -8,4 +8,8 @@ public interface UserService {
 
 	PytheResult login(String params);
 
+	PytheResult tokenLogin(String token, String params);
+
+	PytheResult resetPassword(String parameters);
+
 }
