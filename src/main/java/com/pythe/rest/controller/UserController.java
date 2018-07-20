@@ -59,10 +59,40 @@ public class UserController {
 		}
 	}
 
+	/**
+	 * 老师手机动态登录
+	 * 
+	 * @return
+	 */
+	@PostMapping(value = "/teacher/verificationCode/login")
+	public PytheResult userVerificationCodeLogin(@RequestBody String parameters) {
+		try {
+			return userService.verificationCodeLogin(parameters);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return PytheResult.build(500, ExceptionUtil.getStackTrace(e));
+		}
+	}
+
 	@PostMapping(value = "/teacher/reset/password")
 	public PytheResult resetPassword(@RequestBody String parameters) {
 		try {
 			return userService.resetPassword(parameters);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return PytheResult.build(500, ExceptionUtil.getStackTrace(e));
+		}
+	}
+
+	/**
+	 * 手机注册用户退出登录
+	 * 
+	 * @return
+	 */
+	@PostMapping(value = "/teacher/token/logout")
+	public PytheResult userLogout(@RequestHeader(value = "token") String token, @RequestBody String parameters) {
+		try {
+			return userService.tokenLogout(token, parameters);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return PytheResult.build(500, ExceptionUtil.getStackTrace(e));

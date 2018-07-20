@@ -196,6 +196,7 @@ public class UserServiceImpl implements UserService {
 			// redis存放session
 			String token = FactoryUtils.getUUID();
 			teacher.setPassword(null);
+			redisUtil.remove((String) redisUtil.get("teacher-" + teacher.getPhonenum()));
 			redisUtil.set(String.valueOf(token), JSONObject.toJSONString(teacher));
 			redisUtil.set("teacher-" + teacher.getPhonenum(), token);
 
@@ -222,11 +223,11 @@ public class UserServiceImpl implements UserService {
 	public PytheResult tokenLogin(String token, String params) {
 
 		// redis存放session
-		TblTeacher teacher = null;
+		JSONObject teacher = null;
 		String teacherStr = (String) redisUtil.get(token);
 		if (teacherStr != null) {
-			teacher = (TblTeacher) JSONObject.parse(teacherStr);
-			teacher.setPassword(null);
+			teacher = JSONObject.parseObject(teacherStr);
+
 		}
 
 		// 教师资格需要审核通过
@@ -235,14 +236,14 @@ public class UserServiceImpl implements UserService {
 
 			result.put("teacher", teacher);
 			VTeacherPerformanceExample teacherPerformanceExample = new VTeacherPerformanceExample();
-			teacherPerformanceExample.createCriteria().andTeacherIdEqualTo(teacher.getTeacherId());
+			teacherPerformanceExample.createCriteria().andTeacherIdEqualTo(teacher.getLong("teacherId"));
 			VTeacherPerformance teacherPerformance = vTeacherPerformanceMapper
 					.selectByExample(teacherPerformanceExample).get(0);
 
-			if (teacher.getLevel().intValue() < 0 && teacherPerformance.getStatus().intValue() < 0) {
+			if (teacher.getInteger("level").intValue() < 0 && teacherPerformance.getStatus().intValue() < 0) {
 				return PytheResult.build(668, "须完善信息", result);
 			}
-			if (teacher.getLevel().intValue() == 0 && teacherPerformance.getStatus().intValue() < 0) {
+			if (teacher.getInteger("level").intValue() == 0 && teacherPerformance.getStatus().intValue() < 0) {
 				return PytheResult.build(669, "已完善信息", result);
 			}
 			return PytheResult.ok(result);
@@ -315,6 +316,78 @@ public class UserServiceImpl implements UserService {
 		} else {
 			return PytheResult.build(600, "该手机号未注册过");
 		}
+	}
+
+	@Override
+	public PytheResult verificationCodeLogin(String parameters) {
+		JSONObject userInformation = JSONObject.parseObject(parameters);
+
+		String verificationCode = userInformation.getString("verificationCode").trim();
+
+		String phoneNum = userInformation.getString("phoneNum").trim();
+
+		// 注意：用户没有注册，是不可能跳掉这里来的。(只需要判断验证码即可)
+		TblVerificationExample example = new TblVerificationExample();
+		example.createCriteria().andUserPhoneNumberEqualTo(phoneNum)
+				.andGenerateTimeGreaterThanOrEqualTo(new DateTime().minusMinutes(1).toDate());
+		List<TblVerification> verificationList = verificationMapper.selectByExample(example);
+		// 验证码对象不存在：是因为之前没有插入或者超时导致的
+		if (verificationList.size() == 0) {
+			return PytheResult.build(400, "验证码错误或过期");
+		}
+		TblVerification verification_info = verificationList.get(0);
+
+		// 验证码不正确
+		if (!verification_info.getVerificationCode().equals(verificationCode)) {
+			return PytheResult.build(400, "验证码错误或过期");
+		}
+
+		TblTeacherExample teacherExample = new TblTeacherExample();
+		teacherExample.createCriteria().andPhonenumEqualTo(phoneNum);
+		List<TblTeacher> originalTeachers = teacherMapper.selectByExample(teacherExample);
+		if (!originalTeachers.isEmpty()) {
+			TblTeacher teacher = originalTeachers.get(0);
+
+			String token = FactoryUtils.getUUID();
+			redisUtil.remove((String) redisUtil.get("teacher-" + teacher.getPhonenum()));
+			redisUtil.set(token, JSONObject.toJSONString(teacher));
+			redisUtil.set("teacher-" + teacher.getPhonenum(), token);
+
+			JSONObject result = new JSONObject();
+			teacher.setPassword(null);
+			result.put("teacher", teacher);
+			result.put("token", token);
+			VTeacherPerformanceExample teacherPerformanceExample = new VTeacherPerformanceExample();
+			teacherPerformanceExample.createCriteria().andTeacherIdEqualTo(teacher.getTeacherId());
+			VTeacherPerformance teacherPerformance = vTeacherPerformanceMapper
+					.selectByExample(teacherPerformanceExample).get(0);
+
+			if (teacher.getLevel().intValue() < 0 && teacherPerformance.getStatus().intValue() < 0) {
+				return PytheResult.build(668, "须完善信息", result);
+			}
+			if (teacher.getLevel().intValue() == 0 && teacherPerformance.getStatus().intValue() < 0) {
+				return PytheResult.build(669, "已完善信息", result);
+			}
+			return PytheResult.ok(result);
+		} else {
+			return PytheResult.build(600, "该手机号未注册过");
+		}
+	}
+
+	@Override
+	public PytheResult tokenLogout(String token, String parameters) {
+
+		JSONObject teacher = null;
+		String teacherStr = (String) redisUtil.get(token);
+		if (teacherStr != null) {
+			teacher = JSONObject.parseObject(teacherStr);
+			redisUtil.remove("teacher-" + teacher.getString("phonenum"));
+			redisUtil.remove(token);
+			return PytheResult.build(200, "已登出");
+		} else {
+			return PytheResult.build(400, "无此用户");
+		}
+
 	}
 
 }

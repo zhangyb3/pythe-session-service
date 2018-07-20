@@ -12,4 +12,8 @@ public interface UserService {
 
 	PytheResult resetPassword(String parameters);
 
+	PytheResult verificationCodeLogin(String parameters);
+
+	PytheResult tokenLogout(String token, String parameters);
+
 }
