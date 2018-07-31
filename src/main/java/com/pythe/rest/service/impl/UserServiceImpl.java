@@ -390,4 +390,22 @@ public class UserServiceImpl implements UserService {
 
 	}
 
+	@Override
+	public Object tokenCheck(String params) {
+		JSONObject userInformation = JSONObject.parseObject(params);
+		String token = userInformation.getString("token");
+		String teacherStr = (String) redisUtil.get(token);
+
+		JSONObject result = new JSONObject();
+		JSONObject teacher = null;
+		if (teacherStr != null) {
+			teacher = JSONObject.parseObject(teacherStr);
+			result.put("teacher", teacher);
+			result.put("online", true);
+		} else {
+			result.put("online", false);
+		}
+		return result;
+	}
+
 }

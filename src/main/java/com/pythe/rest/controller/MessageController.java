@@ -3,10 +3,9 @@ package com.pythe.rest.controller;
 import java.net.URLDecoder;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pythe.common.pojo.PytheResult;
@@ -25,8 +24,7 @@ public class MessageController {
 	 * 
 	 * @return
 	 */
-	@RequestMapping(value = "/message/verification/", method = RequestMethod.POST)
-	@ResponseBody
+	@PostMapping(value = "/message/verification/")
 	public PytheResult singleSend(@RequestBody String url) throws Exception {
 		System.out.println("mobile" + url);
 		url = URLDecoder.decode(url, "UTF-8");

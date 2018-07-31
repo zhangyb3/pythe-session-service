@@ -16,4 +16,6 @@ public interface UserService {
 
 	PytheResult tokenLogout(String token, String parameters);
 
+	Object tokenCheck(String params);
+
 }

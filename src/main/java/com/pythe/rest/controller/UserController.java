@@ -26,6 +26,17 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 
+	@PostMapping("/teacher/token/check")
+	public Object teacherTokenCheck(@RequestBody String params) {
+
+		try {
+			return userService.tokenCheck(params);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return PytheResult.build(500, ExceptionUtil.getStackTrace(e));
+		}
+	}
+
 	@PostMapping("/teacher/register")
 	public PytheResult teacherRegister(@RequestBody String params) {
 
